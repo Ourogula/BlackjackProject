@@ -18,6 +18,10 @@ public abstract class Hand {
 		hand.add(card);
 	}
 	
+	public List<Card> getHand () {
+		return hand;
+	}
+	
 	//Empty the current hand
 	public void clear () {
 		hand = null;

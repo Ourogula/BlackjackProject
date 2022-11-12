@@ -14,6 +14,6 @@ public enum Rank {
 	}
 	
 	public String toString () {
-		return "" + this.name() + " : " + this.value;
+		return "" + this.name();
 	}
 }

@@ -1,45 +1,55 @@
 package com.skilldistillery.players;
 
-import com.skilldistillery.cardgame.*;
+import java.util.Collections;
+
+import com.skilldistillery.cardgame.BlackjackHand;
+import com.skilldistillery.cardgame.Hand;
+import com.skilldistillery.cards.Card;
 import com.skilldistillery.cards.Deck;
 
 public class Dealer extends Player {
 
-	private Deck deck;
+	private Deck deck = new Deck();
 	private Hand dealtHand;
-	
-	//Dealer constructor with name and a new deck
-	public Dealer (String name) {
-		super(name);
-		deck = new Deck();
+
+	// Dealer constructor with name Dealer
+	public Dealer() {
+		super("Dealer");
 	}
-	
-	//Deal a fresh hand
-	public Hand dealHand () {
+
+	// Deal a fresh hand
+	public Hand dealHand() {
 		dealtHand = new BlackjackHand();
-		deck.dealCard(dealtHand);
-		deck.dealCard(dealtHand);
+		dealCard(dealtHand);
+		dealCard(dealtHand);
 		return dealtHand;
 	}
-	
-	//Deck getter
+
+	// Deck getter
 	public Deck getDeck() {
 		return deck;
 	}
 
-	//Dealt Hand getter
+	// Dealt Hand getter
 	public Hand getDealtHand() {
 		return dealtHand;
 	}
-	
-	//Grab a fresh deck
-	public void freshDeck () {
+
+	// Grab a fresh deck
+	public void freshDeck() {
 		deck = new Deck();
 	}
-	
-	//Shuffle the current deck
-	public void shuffleDeck() {
-		deck.shuffle();
+
+	//Deal a card to a hand
+	public Card dealCard(Hand hand) {
+		Card removedCard = deck.getDeck().remove(0);
+		hand.addCard(removedCard);
+		return removedCard;
 	}
-	
+
+	// Shuffle the current deck
+	public void shuffleDeck() {
+		Collections.shuffle(deck.getDeck());
+	}
+
 }
