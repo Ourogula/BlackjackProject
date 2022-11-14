@@ -18,7 +18,7 @@ public abstract class Hand {
 		hand.add(card);
 	}
 	
-	public List<Card> getHand () {
+	public List<Card> getHandContents () {
 		return hand;
 	}
 	

@@ -16,13 +16,15 @@ public class BlackjackApp {
 	public void run() {
 		Scanner sc = new Scanner(System.in);
 		Boolean playAgain;
-		
+
 		System.out.println("Welcome to the Blackjack Simulator!\n");
 
 		// Run a game of blackjack, keep going while the player wants to
 		do {
 			playAgain = playBlackjack(sc);
 		} while (playAgain);
+		
+		System.out.println("Thanks for playing the Blackjack Simulator!");
 
 		sc.close();
 	}
@@ -37,13 +39,17 @@ public class BlackjackApp {
 		BlackjackHand visibleDealerHand = new BlackjackHand();
 
 		// Create the players
+		//We create a new player and new dealer every round so that we get a fresh deck and fresh hands.
+		//This also give the option to swap out a player, and the ability to name said player.
+		//This was set up to allow for easy modification to add multiple players, and to emulate casinos where a fresh deck is always used
+		//in order to prevent tampering or marking cards.
 		Player player = new Player("Player");
 		player.setHand(new BlackjackHand());
 		Dealer dealer = new Dealer();
 		dealer.setHand(new BlackjackHand());
 
 		// Initialize the hands
-		startGame(player, dealer, visibleDealerHand);
+		startGame(dealer, visibleDealerHand, player);
 
 		// Check the starting hands for blackjack. If found, end the game.
 		if (((BlackjackHand) dealer.getHand()).isBlackjack() && ((BlackjackHand) player.getHand()).isBlackjack()) {
@@ -66,11 +72,12 @@ public class BlackjackApp {
 				if (((BlackjackHand) player.getHand()).isBust()) {
 					playerWins = false;
 				} else {
-					playerWins = dealerTurn(player, dealer, sc);
-					
-					//If tie game, push and bypass the win statements
+					playerWins = dealerTurn(player, dealer);
+
+					// If tie game, push and bypass the win statements
 					if (dealer.getHand().getHandValue() == player.getHand().getHandValue()) {
-						System.out.println("Push! Both players got a value of " + dealer.getHand().getHandValue() + ". It's a tie!");
+						System.out.println("Push! Both players got a value of " + dealer.getHand().getHandValue()
+								+ ". It's a tie!");
 						tieGame = true;
 					}
 				}
@@ -80,9 +87,9 @@ public class BlackjackApp {
 		// Output who won the game
 		if (!tieGame) {
 			if (playerWins) {
-				System.out.println(player.getName() + " has won the game!");
+				System.out.println("\n" + player.getName() + " has won the game!");
 			} else {
-				System.out.println(dealer.getName() + " has won the game!");
+				System.out.println("\n" + dealer.getName() + " has won the game!");
 			}
 		}
 
@@ -103,13 +110,13 @@ public class BlackjackApp {
 		return playAgain;
 	}
 
-	private void startGame(Player player, Dealer dealer, BlackjackHand visibleDealerHand) {
+	private void startGame(Dealer dealer, BlackjackHand visibleDealerHand, Player player) {
 		dealer.shuffleDeck();
 		dealer.dealCard(player.getHand());
 		dealer.dealCard(dealer.getHand());
 		dealer.dealCard(player.getHand());
 		dealer.dealCard(dealer.getHand());
-		visibleDealerHand.getHand().add(dealer.getHand().getHand().get(1));
+		visibleDealerHand.getHandContents().add(dealer.getHand().getHandContents().get(1));
 	}
 
 	private boolean playerTurn(Player player, Dealer dealer, Scanner sc, BlackjackHand visibleDealerHand,
@@ -118,70 +125,73 @@ public class BlackjackApp {
 		System.out.println();
 
 		// If the player gets a blackjack, win the game instantly
-		if (((BlackjackHand) player.getHand()).isBlackjack()) {
-			System.out.println("Blackjack!");
-			playerWins = true;
-		} else {
-			while (true) {
-				// If player busts, end the game
-				if (((BlackjackHand) player.getHand()).isBust()) {
-					System.out.println("You bust with a value of: " + player.getHand().getHandValue());
-					playerWins = false;
-					break;
-				}
+		while (true) {
+			// If player busts, end the game
+			if (((BlackjackHand) player.getHand()).isBust()) {
+				System.out.println("You bust with a value of: " + player.getHand().getHandValue());
+				playerWins = false;
+				break;
+			}
 
-				// Show the dealer's visible card
-				System.out.println("Dealer's face up card:");
-				System.out.println(visibleDealerHand);
-				System.out.println(visibleDealerHand.getHandValue() + "\n");
+			else if (((BlackjackHand) player.getHand()).is21()) {
+				System.out.println("You have a hand value of 21. Proceeding to dealer's turn.");
+				playerWins = false;
+				break;
+			}
 
-				// Show player's current hand
-				System.out.println("Your current hand: ");
-				System.out.println(player.getHand());
-				System.out.println(player.getHand().getHandValue() + "\n");
+			// Show the dealer's visible card
+			System.out.println("Dealer's face up card:");
+			System.out.println(visibleDealerHand);
+			System.out.println(visibleDealerHand.getHandValue() + "\n");
 
-				// Choose to hit or stand
-				System.out.println("Hit or Stand?");
-				String response = sc.nextLine();
+			// Show player's current hand
+			System.out.println("Your current hand: ");
+			System.out.println(player.getHand());
+			System.out.println(player.getHand().getHandValue() + "\n");
 
-				// If hit, get a new card and loop again
-				if (response.equalsIgnoreCase("hit")) {
-					System.out.println("You were dealt: " + dealer.dealCard(player.getHand()));
-				}
-				// If stand, print the player's value and exit loop
-				else if (response.equalsIgnoreCase("stand")) {
-					System.out.println("You stand with a total of: " + player.getHand().getHandValue() + "\n");
-					playerWins = false;
-					break;
-				}
-				// If neither response is given, loops back through to get a valid response
-				else {
-					System.out.println("Please enter a valid response.\n");
-				}
+			// Choose to hit or stand
+			System.out.println("Hit or Stand?");
+			String response = sc.nextLine();
+
+			// If hit, get a new card and loop again
+			if (response.equalsIgnoreCase("hit")) {
+				System.out.println("You were dealt: " + dealer.dealCard(player.getHand()));
+			}
+			// If stand, print the player's value and exit loop
+			else if (response.equalsIgnoreCase("stand")) {
+				System.out.println("You stand with a total of: " + player.getHand().getHandValue() + "\n");
+				playerWins = false;
+				break;
+			}
+			// If neither response is given, loops back through to get a valid response
+			else {
+				System.out.println("Please enter a valid response.\n");
 			}
 		}
 
 		return playerWins;
+
 	}
 
-	private boolean dealerTurn(Player player, Dealer dealer, Scanner sc) {
+	private boolean dealerTurn(Player player, Dealer dealer) {
 		// TODO Auto-generated method stub
 		boolean playerWins = false;
-
+		
+		System.out.println("\nDealer's current hand: " + dealer.getHand());
+		System.out.println(dealer.getHand().getHandValue() + "\n");
+		
 		while (dealer.getHand().getHandValue() < 17) {
 			System.out.println("Dealt the dealer: " + dealer.dealCard(dealer.getHand()));
 			System.out.println("Dealer's current hand: " + dealer.getHand());
 			System.out.println(dealer.getHand().getHandValue());
 		}
-		if (((BlackjackHand)dealer.getHand()).isBust()) {
+		if (((BlackjackHand) dealer.getHand()).isBust()) {
 			System.out.println("The dealer busts with a value of: " + dealer.getHand().getHandValue());
 			playerWins = true;
-		}
-		else if (dealer.getHand().getHandValue() < player.getHand().getHandValue()) {
+		} else if (dealer.getHand().getHandValue() < player.getHand().getHandValue()) {
 			System.out.println("The dealer stands with a value of: " + dealer.getHand().getHandValue());
 			playerWins = true;
-		} 
-		else {
+		} else {
 			System.out.println("The dealer stands with a value of: " + dealer.getHand().getHandValue());
 		}
 

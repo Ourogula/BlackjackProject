@@ -18,6 +18,14 @@ public class BlackjackHand extends Hand {
 		return value;
 	}
 	
+	public boolean is21 () {
+		boolean _21 = false;
+		if (getHandValue() == 21) {
+			_21 = true;
+		}
+		return _21;
+	}
+	
 	public boolean isBlackjack () {
 		boolean blackjack = false;
 		if (hand.size() == 2 && getHandValue() == 21) {

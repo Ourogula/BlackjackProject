@@ -10,7 +10,6 @@ import com.skilldistillery.cards.Deck;
 public class Dealer extends Player {
 
 	private Deck deck = new Deck();
-	private Hand dealtHand;
 
 	// Dealer constructor with name Dealer
 	public Dealer() {
@@ -19,20 +18,15 @@ public class Dealer extends Player {
 
 	// Deal a fresh hand
 	public Hand dealHand() {
-		dealtHand = new BlackjackHand();
-		dealCard(dealtHand);
-		dealCard(dealtHand);
-		return dealtHand;
+		hand = new BlackjackHand();
+		dealCard(hand);
+		dealCard(hand);
+		return hand;
 	}
 
 	// Deck getter
 	public Deck getDeck() {
 		return deck;
-	}
-
-	// Dealt Hand getter
-	public Hand getDealtHand() {
-		return dealtHand;
 	}
 
 	// Grab a fresh deck

@@ -4,7 +4,7 @@ import com.skilldistillery.cardgame.Hand;
 
 public class Player {
 	
-	private Hand hand;
+	protected Hand hand;
 	private String name;
 	
 	public Player (String name)  {
